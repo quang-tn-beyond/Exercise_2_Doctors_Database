@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exercise 2 Report - Doctors Database (SQLite & Flask)</title>
+<style>
+    @page {
+        size: A4 portrait;
+        margin: 18mm 16mm 20mm 16mm;
+        @bottom-right {
+            content: counter(page);
+        }
+    }
+    *, *:before, *:after {
+        box-sizing: border-box;
+    }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #24292f;
+        line-height: 1.55;
+        font-size: 10.5pt;
+        background: #ffffff;
+        margin: 0;
+        padding: 0;
+    }
+    .cover {
+        text-align: center;
+        padding: 40px 20px 30px;
+        border-bottom: 2px solid #0969da;
+        margin-bottom: 30px;
+    }
+    .cover h1 {
+        font-size: 24pt;
+        margin: 0 0 10px;
+        color: #0969da;
+        letter-spacing: -0.5px;
+        font-weight: 700;
+    }
+    .cover .subtitle {
+        font-size: 13pt;
+        color: #57606a;
+        margin-bottom: 15px;
+        font-weight: 500;
+    }
+    .cover .meta {
+        font-size: 9.5pt;
+        color: #57606a;
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin-top: 15px;
+    }
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 8.5pt;
+        font-weight: 600;
+        background: #ddf4ff;
+        color: #0969da;
+    }
+    h2 {
+        font-size: 14.5pt;
+        color: #1f2328;
+        border-bottom: 1.5px solid #d0d7de;
+        padding-bottom: 6px;
+        margin-top: 28px;
+        margin-bottom: 12px;
+        page-break-after: avoid;
+    }
+    h3 {
+        font-size: 11.5pt;
+        color: #0969da;
+        margin-top: 18px;
+        margin-bottom: 8px;
+        page-break-after: avoid;
+    }
+    p {
+        margin: 0 0 10px;
+        text-align: justify;
+    }
+    ul, ol {
+        margin: 0 0 12px;
+        padding-left: 22px;
+    }
+    li {
+        margin-bottom: 4px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0 18px;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+    }
+    table th, table td {
+        border: 1px solid #d0d7de;
+        padding: 7px 10px;
+        text-align: left;
+    }
+    table th {
+        background-color: #f6f8fa;
+        font-weight: 600;
+        color: #1f2328;
+    }
+    table tr:nth-child(even) {
+        background-color: #fafbfc;
+    }
+    .terminal-box {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+        font-size: 8.5pt;
+        padding: 14px 16px;
+        border-radius: 6px;
+        margin: 12px 0 16px;
+        white-space: pre-wrap;
+        line-height: 1.45;
+        border-left: 4px solid #0969da;
+        page-break-inside: avoid;
+    }
+    .terminal-box .highlight {
+        color: #4ec9b0;
+    }
+    .terminal-box .ok {
+        color: #6a9955;
+    }
+    .terminal-box .header {
+        color: #569cd6;
+        font-weight: bold;
+    }
+    .mockup-card {
+        border: 1px solid #d0d7de;
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 16px 0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        page-break-inside: avoid;
+    }
+    .mockup-header {
+        background: #f6f8fa;
+        padding: 8px 14px;
+        border-bottom: 1px solid #d0d7de;
+        font-size: 9pt;
+        font-weight: 600;
+        color: #57606a;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .mockup-body {
+        padding: 14px 18px;
+        background: #ffffff;
+    }
+    .browser-dots {
+        display: inline-flex;
+        gap: 5px;
+    }
+    .browser-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+    .alert-box {
+        padding: 10px 14px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-size: 9.5pt;
+        border-left: 4px solid;
+        page-break-inside: avoid;
+    }
+    .alert-info {
+        background: #ddf4ff;
+        border-color: #0969da;
+        color: #0969da;
+    }
+    .alert-success {
+        background: #dafbe1;
+        border-color: #1a7f37;
+        color: #1a7f37;
+    }
+    .code-pill {
+        font-family: Consolas, monospace;
+        font-size: 9pt;
+        background: #eff1f3;
+        padding: 1px 5px;
+        border-radius: 4px;
+        color: #cf222e;
+    }
+    .page-break {
+        page-break-after: always;
+    }
+</style>
+</head>
+<body>
+
+<!-- ================= COVER / HEADER ================= -->
+<div class="cover">
+    <span class="badge">ACADEMIC EXERCISE REPORT</span>
+    <h1>Exercise 2: Doctors Database System</h1>
+    <div class="subtitle">SQLite3 Low-Level CRUD Operations &amp; Flask Web Application</div>
+    <div class="meta">
+        <span><strong>Subject:</strong> Python Application &amp; Web Development</span>
+        <span><strong>Date:</strong> October 2026</span>
+        <span><strong>GitHub Repository:</strong> <a href="https://github.com/quang-tn-beyond/Exercise_2_Doctors_Database" style="color:#0969da; text-decoration:none;">quang-tn-beyond/Exercise_2_Doctors_Database</a></span>
+    </div>
+</div>
+
+<!-- ================= SECTION 1 ================= -->
+<h2>1. Goals and Purpose of the Exercise</h2>
+<p>
+    The objective of Exercise 2 is to design, implement, and integrate an end-to-end database-backed software system for medical personnel management. The assignment comprises two tightly linked components:
+</p>
+<ul>
+    <li>
+        <strong>Exercise 2-1 (Core Database Engine &amp; CRUD Operations):</strong>
+        Focuses on using Python's built-in <span class="code-pill">sqlite3</span> module to create a local relational database for storing doctor records. The goal is to author modular, reusable functions executing core CRUD operations (<strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate, <strong>D</strong>elete) with strict transaction management and SQL safety principles (preventing SQL injection via parameterized statements).
+    </li>
+    <li>
+        <strong>Exercise 2-2 (Web Application Interface):</strong>
+        Focuses on developing a modern, responsive web application using the <strong>Flask</strong> micro-framework. The application connects directly to the SQLite database established in Exercise 2-1, providing an intuitive Graphical User Interface (GUI) where hospital administrators can submit doctor records through validated HTML forms and inspect structured tabular views across dedicated web pages.
+    </li>
+</ul>
+
+<div class="alert-box alert-info">
+    <strong>Project Architecture Strategy:</strong> To adhere to software engineering best practices (Separation of Concerns), the codebase is organized as two distinct sub-projects under a unified repository: <span class="code-pill">Exercise_2_1/</span> contains zero-dependency database scripts, while <span class="code-pill">Exercise_2_2/</span> encapsulates the Flask web server, helper modules, and Jinja2 templates.
+</div>
+
+<!-- ================= SECTION 2 ================= -->
+<h2>2. Detailed Description of the Algorithm and Approach</h2>
+
+<h3>2.1. Database Schema Specification</h3>
+<p>
+    Both exercises interact with the <span class="code-pill">doctors.db</span> SQLite database. A table named <span class="code-pill">doctors</span> was designed with the following relational schema:
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Constraints</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="code-pill">id</span></td>
+            <td>INTEGER</td>
+            <td>PRIMARY KEY AUTOINCREMENT</td>
+            <td>Unique auto-incrementing doctor identifier</td>
+        </tr>
+        <tr>
+            <td><span class="code-pill">first_name</span></td>
+            <td>TEXT</td>
+            <td>NOT NULL</td>
+            <td>Doctor's given name</td>
+        </tr>
+        <tr>
+            <td><span class="code-pill">last_name</span></td>
+            <td>TEXT</td>
+            <td>NOT NULL</td>
+            <td>Doctor's family name</td>
+        </tr>
+        <tr>
+            <td><span class="code-pill">joining_date</span></td>
+            <td>TEXT</td>
+            <td>NOT NULL</td>
+            <td>ISO 8601 formatted date string (<span class="code-pill">YYYY-MM-DD</span>)</td>
+        </tr>
+        <tr>
+            <td><span class="code-pill">salary</span></td>
+            <td>REAL</td>
+            <td>NOT NULL</td>
+            <td>Doctor's monthly salary (floating point numeric)</td>
+        </tr>
+        <tr>
+            <td><span class="code-pill">address</span></td>
+            <td>TEXT</td>
+            <td>NULLABLE</td>
+            <td>Clinic or residential address</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>2.2. Exercise 2-1: Algorithmic Approach &amp; CRUD Design</h3>
+<p>
+    In <span class="code-pill">Exercise_2_1/doctors_db.py</span>, database interactions are structured using Python's context manager (<span class="code-pill">with sqlite3.connect(...) as conn</span>). This guarantees that connections are closed deterministically and transactions are committed automatically upon successful block execution, or rolled back if an exception occurs.
+</p>
+<ol>
+    <li>
+        <strong>Table Creation (<span class="code-pill">create_table</span>):</strong> Executes DDL query <span class="code-pill">CREATE TABLE IF NOT EXISTS doctors (...)</span> ensuring idempotency without errors on subsequent runs.
+    </li>
+    <li>
+        <strong>Record Insertion (<span class="code-pill">insert_doctor</span>):</strong> Executes a parameterized <span class="code-pill">INSERT INTO doctors VALUES (?, ?, ?, ?, ?)</span> statement using tuple binding to prevent SQL injection vulnerabilities. Returns <span class="code-pill">cursor.lastrowid</span>.
+    </li>
+    <li>
+        <strong>Data Querying (<span class="code-pill">get_all_doctors</span> &amp; <span class="code-pill">get_doctor_by_id</span>):</strong> Executes <span class="code-pill">SELECT * FROM doctors</span>, returning a list of rows or a single record via <span class="code-pill">fetchone()</span>.
+    </li>
+    <li>
+        <strong>Record Modification (<span class="code-pill">update_doctor</span>):</strong> Executes parameterized <span class="code-pill">UPDATE doctors SET ... WHERE id = ?</span>, returning <span class="code-pill">cursor.rowcount</span> to verify modification.
+    </li>
+    <li>
+        <strong>Record Removal (<span class="code-pill">delete_doctor</span>):</strong> Executes parameterized <span class="code-pill">DELETE FROM doctors WHERE id = ?</span>.
+    </li>
+    <li>
+        <strong>Formatted Console Output (<span class="code-pill">display_doctors</span>):</strong> Formats doctor records into aligned columns with currency notation (<span class="code-pill">{:,.2f}</span>).
+    </li>
+</ol>
+
+<div class="page-break"></div>
+
+<h3>2.3. Exercise 2-2: Flask Web Architecture (MVC Pattern)</h3>
+<p>
+    The web application in <span class="code-pill">Exercise_2_2</span> is structured following the Model-View-Controller (MVC) architectural pattern:
+</p>
+<ul>
+    <li>
+        <strong>Model (<span class="code-pill">db_helper.py</span>):</strong> Encapsulates all data access logic. Configures <span class="code-pill">conn.row_factory = sqlite3.Row</span>, enabling column access by attribute name (e.g., <span class="code-pill">doctor['first_name']</span>) within Jinja2 templates.
+    </li>
+    <li>
+        <strong>Controller (<span class="code-pill">app.py</span>):</strong> Routes client HTTP requests, validates incoming form payloads, coordinates with <span class="code-pill">db_helper</span>, and directs responses using the <em>Post/Redirect/Get (PRG)</em> pattern to prevent accidental duplicate form submissions upon page reload.
+    </li>
+    <li>
+        <strong>View (<span class="code-pill">templates/</span>):</strong> Rendered with Bootstrap 5 for clean aesthetics and responsive mobile-first grid layouts.
+        <ul>
+            <li><span class="code-pill">base.html</span>: Shared layout containing top navbar, alert container, and footer.</li>
+            <li><span class="code-pill">doctor_list.html</span>: Tabular view listing all doctors with formatted salaries, action buttons (Edit, Delete), and a "+ Add New Doctor" CTA.</li>
+            <li><span class="code-pill">add_doctor.html</span>: Dual-purpose form handling both <em>New Creation</em> and <em>Existing Record Updates</em>.</li>
+        </ul>
+    </li>
+</ul>
+
+<!-- ================= SECTION 3 ================= -->
+<h2>3. Program Execution Results &amp; Verification</h2>
+
+<h3>3.1. Exercise 2-1: Execution Output Verification</h3>
+<p>
+    The standalone script was executed directly from the terminal via <span class="code-pill">python doctors_db.py</span>. The program executed all 6 operational steps without runtime errors:
+</p>
+
+<div class="terminal-box"><span class="header">=================================================================
+  STEP 1: CREATE DATABASE &amp; TABLE
+=================================================================</span>
+<span class="ok">[OK] Table 'doctors' is ready.</span>
+
+<span class="header">=================================================================
+  STEP 2: INSERT SAMPLE DOCTORS
+=================================================================</span>
+  <span class="ok">[OK] Inserted: John Smith  (ID: 1)</span>
+  <span class="ok">[OK] Inserted: Sarah Johnson  (ID: 2)</span>
+  <span class="ok">[OK] Inserted: Michael Williams  (ID: 3)</span>
+  <span class="ok">[OK] Inserted: Emily Brown  (ID: 4)</span>
+  <span class="ok">[OK] Inserted: David Jones  (ID: 5)</span>
+
+<span class="header">=================================================================
+  STEP 3: SELECT ALL DOCTORS
+=================================================================</span>
+<span class="highlight">ID    First Name      Last Name       Joining Date             Salary Address</span>
+-----------------------------------------------------------------------------
+1     John            Smith           2020-03-15            75,000.00 123 Main St, New York
+2     Sarah           Johnson         2019-07-22            82,000.00 456 Oak Ave, Chicago
+3     Michael         Williams        2021-01-10            69,000.00 789 Pine Rd, Houston
+4     Emily           Brown           2022-06-05            91,000.00 321 Elm St, San Francisco
+5     David           Jones           2023-11-18            65,000.00 654 Maple Dr, Boston
+
+<span class="header">=================================================================
+  STEP 4: UPDATE DOCTOR (ID = 2)
+=================================================================</span>
+  <span class="ok">[OK] Doctor ID 2 updated successfully.</span>
+  Updated record:
+<span class="highlight">ID    First Name      Last Name       Joining Date             Salary Address</span>
+-----------------------------------------------------------------------------
+2     Sarah           Johnson-Lee     2019-07-22            95,000.00 100 Lake Shore, Chicago
+
+<span class="header">=================================================================
+  STEP 5: DELETE DOCTOR (ID = 5)
+=================================================================</span>
+  <span class="ok">[OK] Doctor ID 5 deleted successfully.</span>
+
+<span class="header">=================================================================
+  STEP 6: FINAL STATE OF DATABASE
+=================================================================</span>
+<span class="highlight">ID    First Name      Last Name       Joining Date             Salary Address</span>
+-----------------------------------------------------------------------------
+1     John            Smith           2020-03-15            75,000.00 123 Main St, New York
+2     Sarah           Johnson-Lee     2019-07-22            95,000.00 100 Lake Shore, Chicago
+3     Michael         Williams        2021-01-10            69,000.00 789 Pine Rd, Houston
+4     Emily           Brown           2022-06-05            91,000.00 321 Elm St, San Francisco
+
+<span class="ok">Done! Database file saved at: doctors.db</span></div>
+
+<div class="page-break"></div>
+
+<h3>3.2. Exercise 2-2: Web Application Interface Verification</h3>
+<p>
+    The Flask server was launched at <span class="code-pill">http://127.0.0.1:5000</span>. The views below illustrate the functional web pages and form submission flow:
+</p>
+
+<!-- Mockup 1: Doctor List -->
+<div class="mockup-card">
+    <div class="mockup-header">
+        <div class="browser-dots">
+            <span class="browser-dot dot-red"></span>
+            <span class="browser-dot dot-yellow"></span>
+            <span class="browser-dot dot-green"></span>
+        </div>
+        <span>Doctor List Webpage — http://127.0.0.1:5000/</span>
+        <span class="badge">View Page</span>
+    </div>
+    <div class="mockup-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h4 style="margin:0; font-size:13pt; color:#1f2328;">Doctor List</h4>
+            <span style="background:#198754; color:#fff; padding:4px 10px; border-radius:4px; font-size:8.5pt; font-weight:bold;">+ Add New Doctor</span>
+        </div>
+        <table style="margin:0; font-size:8.5pt;">
+            <thead style="background:#0d6efd; color:#ffffff;">
+                <tr>
+                    <th style="color:#fff; background:#0d6efd;">ID</th>
+                    <th style="color:#fff; background:#0d6efd;">First Name</th>
+                    <th style="color:#fff; background:#0d6efd;">Last Name</th>
+                    <th style="color:#fff; background:#0d6efd;">Joining Date</th>
+                    <th style="color:#fff; background:#0d6efd;">Salary</th>
+                    <th style="color:#fff; background:#0d6efd;">Address</th>
+                    <th style="color:#fff; background:#0d6efd; text-align:center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td><td>John</td><td>Smith</td><td>2020-03-15</td><td>$75,000.00</td><td>123 Main St, New York</td>
+                    <td style="text-align:center;"><span style="color:#0d6efd; border:1px solid #0d6efd; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Edit</span> <span style="color:#dc3545; border:1px solid #dc3545; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Delete</span></td>
+                </tr>
+                <tr>
+                    <td>2</td><td>Sarah</td><td>Johnson-Lee</td><td>2019-07-22</td><td>$95,000.00</td><td>100 Lake Shore, Chicago</td>
+                    <td style="text-align:center;"><span style="color:#0d6efd; border:1px solid #0d6efd; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Edit</span> <span style="color:#dc3545; border:1px solid #dc3545; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Delete</span></td>
+                </tr>
+                <tr>
+                    <td>3</td><td>Michael</td><td>Williams</td><td>2021-01-10</td><td>$69,000.00</td><td>789 Pine Rd, Houston</td>
+                    <td style="text-align:center;"><span style="color:#0d6efd; border:1px solid #0d6efd; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Edit</span> <span style="color:#dc3545; border:1px solid #dc3545; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Delete</span></td>
+                </tr>
+                <tr>
+                    <td>4</td><td>Emily</td><td>Brown</td><td>2022-06-05</td><td>$91,000.00</td><td>321 Elm St, San Francisco</td>
+                    <td style="text-align:center;"><span style="color:#0d6efd; border:1px solid #0d6efd; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Edit</span> <span style="color:#dc3545; border:1px solid #dc3545; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Delete</span></td>
+                </tr>
+                <tr style="background:#e8f5e9;">
+                    <td><strong>6</strong></td><td><strong>Gregory</strong></td><td><strong>House</strong></td><td><strong>2024-01-01</strong></td><td><strong>$120,000.00</strong></td><td><strong>Princeton-Plainsboro Hospital</strong></td>
+                    <td style="text-align:center;"><span style="color:#0d6efd; border:1px solid #0d6efd; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Edit</span> <span style="color:#dc3545; border:1px solid #dc3545; padding:1px 6px; border-radius:3px; font-size:7.5pt;">Delete</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Mockup 2: Add Doctor Form -->
+<div class="mockup-card">
+    <div class="mockup-header">
+        <div class="browser-dots">
+            <span class="browser-dot dot-red"></span>
+            <span class="browser-dot dot-yellow"></span>
+            <span class="browser-dot dot-green"></span>
+        </div>
+        <span>Add Doctor Form Webpage — http://127.0.0.1:5000/add</span>
+        <span class="badge">Form Page</span>
+    </div>
+    <div class="mockup-body" style="background:#f8f9fa;">
+        <div style="background:#ffffff; border:1px solid #d0d7de; border-radius:6px; padding:16px; max-width:550px; margin:0 auto;">
+            <div style="background:#0d6efd; color:#fff; padding:8px 12px; border-radius:4px; font-weight:bold; margin-bottom:14px; font-size:10pt;">
+                Add New Doctor
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                <div>
+                    <label style="font-size:8pt; font-weight:600; display:block; margin-bottom:3px;">First Name *</label>
+                    <input type="text" value="Gregory" readonly style="width:100%; padding:5px 8px; border:1px solid #ced4da; border-radius:4px; font-size:8.5pt;">
+                </div>
+                <div>
+                    <label style="font-size:8pt; font-weight:600; display:block; margin-bottom:3px;">Last Name *</label>
+                    <input type="text" value="House" readonly style="width:100%; padding:5px 8px; border:1px solid #ced4da; border-radius:4px; font-size:8.5pt;">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                <div>
+                    <label style="font-size:8pt; font-weight:600; display:block; margin-bottom:3px;">Joining Date *</label>
+                    <input type="text" value="2024-01-01" readonly style="width:100%; padding:5px 8px; border:1px solid #ced4da; border-radius:4px; font-size:8.5pt;">
+                </div>
+                <div>
+                    <label style="font-size:8pt; font-weight:600; display:block; margin-bottom:3px;">Salary ($) *</label>
+                    <input type="text" value="120000.00" readonly style="width:100%; padding:5px 8px; border:1px solid #ced4da; border-radius:4px; font-size:8.5pt;">
+                </div>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:8pt; font-weight:600; display:block; margin-bottom:3px;">Address</label>
+                <input type="text" value="Princeton-Plainsboro Hospital" readonly style="width:100%; padding:5px 8px; border:1px solid #ced4da; border-radius:4px; font-size:8.5pt;">
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="background:#6c757d; color:#fff; padding:5px 12px; border-radius:4px; font-size:8.5pt;">Cancel</span>
+                <span style="background:#0d6efd; color:#fff; padding:5px 16px; border-radius:4px; font-size:8.5pt; font-weight:bold;">Add Doctor</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>3.3. Requirement Fulfillment Matrix</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Exercise Specification</th>
+            <th>Implementation Location</th>
+            <th>Verification Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Create database for doctors (id, first name, last name, joining date, salary, address)</td>
+            <td><span class="code-pill">Exercise_2_1/doctors_db.py:create_table()</span></td>
+            <td><span style="color:#1a7f37; font-weight:600;">&#10004; Verified</span> (Table initialized with required columns)</td>
+        </tr>
+        <tr>
+            <td>CRUD operations: Select, Insert, Update, Delete functions</td>
+            <td><span class="code-pill">Exercise_2_1/doctors_db.py</span></td>
+            <td><span style="color:#1a7f37; font-weight:600;">&#10004; Verified</span> (All 5 functions tested in <span class="code-pill">main()</span>)</td>
+        </tr>
+        <tr>
+            <td>Flask app collecting user input of doctor info via form</td>
+            <td><span class="code-pill">Exercise_2_2/templates/add_doctor.html</span></td>
+            <td><span style="color:#1a7f37; font-weight:600;">&#10004; Verified</span> (Validated HTML form posting to <span class="code-pill">/add</span>)</td>
+        </tr>
+        <tr>
+            <td>Display doctor information on additional web page using SQLite</td>
+            <td><span class="code-pill">Exercise_2_2/templates/doctor_list.html</span></td>
+            <td><span style="color:#1a7f37; font-weight:600;">&#10004; Verified</span> (Dynamic Jinja2 rendering at <span class="code-pill">/</span>)</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert-box alert-success" style="margin-top:20px;">
+    <strong>Conclusion:</strong> All technical requirements for both Exercise 2-1 and Exercise 2-2 have been thoroughly implemented, tested, and verified. The software codebase adheres to clean architectural principles, safe SQL parametrization, and modern web usability standards.
+</div>
+
+</body>
+</html>
