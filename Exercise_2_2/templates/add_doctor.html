@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "Edit Doctor" if edit_mode else "Add Doctor" }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{{ "Edit Doctor" if edit_mode else "Add New Doctor" }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST"
+                      action="{{ url_for('edit_doctor', doctor_id=doctor['id']) if edit_mode else url_for('add_doctor') }}">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="first_name" name="first_name"
+                                   value="{{ doctor['first_name'] if edit_mode else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="last_name" name="last_name"
+                                   value="{{ doctor['last_name'] if edit_mode else '' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="joining_date" class="form-label">Joining Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="joining_date" name="joining_date"
+                                   value="{{ doctor['joining_date'] if edit_mode else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="salary" class="form-label">Salary <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="salary" name="salary"
+                                   step="0.01" min="0"
+                                   value="{{ doctor['salary'] if edit_mode else '' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address"
+                                  rows="2">{{ doctor['address'] if edit_mode else '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            {{ "Save Changes" if edit_mode else "Add Doctor" }}
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
